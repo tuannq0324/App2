@@ -41,9 +41,6 @@ class MainViewModel(
         }
     }
 
-
-    //    val listAllImage = MutableStateFlow<List<ImageResponse>>(mutableListOf())
-//    val listImage: MutableLiveData<List<ImageResponse>> = MutableLiveData()
     private var page = 1
 
     private var isLoading = false

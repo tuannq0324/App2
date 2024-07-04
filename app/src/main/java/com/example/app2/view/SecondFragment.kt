@@ -7,8 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.example.app2.activity.ViewModelFactory
 import com.example.app2.activity.activity1.MainViewModel
 import com.example.app2.adapter.ImageAdapter
@@ -50,14 +48,6 @@ class SecondFragment : Fragment() {
     private fun initView() {
         binding.apply {
             rvImage.adapter = mAdapter
-            rvImage.addOnScrollListener(object : OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    if (!recyclerView.canScrollVertically(1)) {
-                        activityViewModel.loadMore()
-                    }
-                }
-            })
         }
     }
 

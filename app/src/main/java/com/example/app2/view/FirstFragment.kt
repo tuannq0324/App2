@@ -57,6 +57,9 @@ class FirstFragment : Fragment() {
             activityViewModel.imageViewItems.collect {
                 launchWhenStarted {
                     mAdapter.addAll(it)
+                    binding.rvImage.postDelayed({
+                        mAdapter.removeLoadMore()
+                    },1000L)
                 }
             }
         }
@@ -70,7 +73,15 @@ class FirstFragment : Fragment() {
                     super.onScrolled(recyclerView, dx, dy)
                     if (!recyclerView.canScrollVertically(1)) {
                         activityViewModel.loadMore()
+                        mAdapter.addLoadMore()
+                        rvImage.postDelayed({
+                            mAdapter.removeLoadMore()
+                        }, 5000L)
                     }
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
                 }
             })
         }
