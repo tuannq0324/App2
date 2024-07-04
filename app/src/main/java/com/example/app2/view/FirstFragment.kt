@@ -73,15 +73,13 @@ class FirstFragment : Fragment() {
                     super.onScrolled(recyclerView, dx, dy)
                     if (!recyclerView.canScrollVertically(1)) {
                         activityViewModel.loadMore()
+
                         mAdapter.addLoadMore()
+                        //timeout
                         rvImage.postDelayed({
                             mAdapter.removeLoadMore()
                         }, 5000L)
                     }
-                }
-
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
                 }
             })
         }
