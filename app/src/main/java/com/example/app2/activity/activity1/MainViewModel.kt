@@ -5,14 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.app2.BaseApplication
 import com.example.app2.api.model.ImageItem
 import com.example.app2.api.model.ImageResponse
-import com.example.app2.database.model.ImageEntity
 import com.example.app2.database.MainRepository
+import com.example.app2.database.model.ImageEntity
 import com.example.app2.model.ImageViewItem
 import com.example.app2.utils.CommonFunction.convertToImageEntity
-import kotlinx.coroutines.Dispatchers
+import com.example.app2.utils.CommonFunction.convertToImageResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 //@HiltViewModel
@@ -34,6 +35,12 @@ class MainViewModel(
             }
         }
 
+    val imageViewItemsSelected = repository.getAll().map { list ->
+        list.map {
+            ImageViewItem(item = it.convertToImageResponse(), isSelected = true)
+        }
+    }
+
 
     //    val listAllImage = MutableStateFlow<List<ImageResponse>>(mutableListOf())
 //    val listImage: MutableLiveData<List<ImageResponse>> = MutableLiveData()
@@ -42,7 +49,7 @@ class MainViewModel(
     private var isLoading = false
 
     fun fetchData() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
 
             isLoading = true
 
@@ -68,7 +75,7 @@ class MainViewModel(
     }
 
     fun updateSelect(imageItem: ImageViewItem) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val item = imageItem.item
 
             val isExist = repository.isExisted(id = item.id)

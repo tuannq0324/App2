@@ -4,6 +4,8 @@ import android.util.Log
 import com.example.app2.api.model.ImageItem
 import com.example.app2.api.model.ImageResponse
 import com.example.app2.model.QualityUrls
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 import java.io.BufferedReader
@@ -14,12 +16,12 @@ import java.net.URL
 
 class RequesterImpl : IRequester {
 
-    override fun loadImages(page: Int, perPage: Int): ImageResponse {
-        return callApi(page = page, perPage = perPage)
+    override suspend fun loadImages(page: Int, perPage: Int): ImageResponse = withContext(Dispatchers.IO) {
+        callApi(page = page, perPage = perPage)
     }
 
-    override fun loadMore(page: Int, perPage: Int): ImageResponse {
-        return callApi(page = page, perPage = perPage)
+    override suspend fun loadMore(page: Int, perPage: Int): ImageResponse = withContext(Dispatchers.IO) {
+        callApi(page = page, perPage = perPage)
     }
 
     private fun callApi(page: Int, perPage: Int): ImageResponse {

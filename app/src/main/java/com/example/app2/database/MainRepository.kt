@@ -1,7 +1,9 @@
 package com.example.app2.database
 
 import com.example.app2.database.model.ImageEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class MainRepository(database: AppDatabase) {
 
@@ -11,21 +13,21 @@ class MainRepository(database: AppDatabase) {
         return imageDao.getAll()
     }
 
-    private fun getAllImage(): List<ImageEntity> {
-        return imageDao.getAllImage()
-    }
-
-    fun insert(imageEntity: ImageEntity) {
+    suspend fun insert(imageEntity: ImageEntity)  = withContext(Dispatchers.IO){
         imageDao.insert(imageEntity)
     }
 
-    fun delete(id: String) {
+    suspend fun delete(id: String) = withContext(Dispatchers.IO){
         imageDao.delete(id)
     }
 
-    fun isExisted(id: String): Boolean {
-        return getAllImage().find {
+    suspend fun isExisted(id: String): Boolean = withContext(Dispatchers.IO) {
+        getAllImage().find {
             it.imageId == id
         } != null
+    }
+
+    private fun getAllImage(): List<ImageEntity> {
+        return imageDao.getAllImage()
     }
 }
