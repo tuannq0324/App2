@@ -16,6 +16,4 @@ class FirstViewModelFactory(private val repository: MainRepository) : ViewModelP
 }
 
 
-class FirstViewModel(private val repository: MainRepository): MainViewModel(repository) {
-
-}
+class FirstViewModel(private val repository: MainRepository): MainViewModel(repository)
