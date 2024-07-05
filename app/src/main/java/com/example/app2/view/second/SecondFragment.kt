@@ -10,8 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.example.app2.database.AppDatabase
 import com.example.app2.database.MainRepository
 import com.example.app2.databinding.FragmentSecondBinding
-import com.example.app2.view.adapter.ImageAdapter
-import com.example.app2.view.first.FirstViewModelFactory
 import kotlinx.coroutines.launch
 
 class SecondFragment : Fragment() {
@@ -21,12 +19,21 @@ class SecondFragment : Fragment() {
 
     private val secondViewModel by viewModels<SecondViewModel>(
         factoryProducer = {
-            FirstViewModelFactory(repository = MainRepository(AppDatabase.getInstance(requireContext())))
+            SecondViewModelFactory(
+                repository = MainRepository(
+                    AppDatabase.getInstance(
+                        requireContext()
+                    )
+                )
+            )
         }
     )
 
     private val mAdapter by lazy {
-        ImageAdapter(data = arrayListOf(), listener = secondViewModel::updateSelect)
+        SecondFragmentAdapter(
+            data = arrayListOf(),
+            listener = secondViewModel::updateSelect,
+        )
     }
 
 
@@ -34,7 +41,7 @@ class SecondFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
+        _binding = FragmentSecondBinding.inflate(inflater, container, false)
         return binding.root
     }
 

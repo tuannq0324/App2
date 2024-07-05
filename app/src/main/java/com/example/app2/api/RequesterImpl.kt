@@ -5,6 +5,7 @@ import com.example.app2.api.model.ImageItem
 import com.example.app2.api.model.ImageResponse
 import com.example.app2.model.QualityUrls
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
@@ -16,18 +17,22 @@ import java.net.URL
 
 class RequesterImpl : IRequester {
 
-    override suspend fun loadImages(page: Int, perPage: Int): ImageResponse = withContext(Dispatchers.IO) {
+    override suspend fun loadImages(page: Int, perPage: Int): Unit = withContext(Dispatchers.IO) {
         callApi(page = page, perPage = perPage)
     }
 
-    override suspend fun loadMore(page: Int, perPage: Int): ImageResponse = withContext(Dispatchers.IO) {
+    override suspend fun loadMore(page: Int, perPage: Int): Unit = withContext(Dispatchers.IO) {
         callApi(page = page, perPage = perPage)
     }
 
-    private fun callApi(page: Int, perPage: Int): ImageResponse {
+    val response: MutableStateFlow<ImageResponse?> = MutableStateFlow<ImageResponse?>(null)
+
+    private suspend fun callApi(page: Int, perPage: Int) {
         val url = "$BASE_URL$ACCESS_KEY&page=$page&per_page=${perPage}"
 
-        return try {
+        response.emit(ImageResponse.Loading)
+
+        try {
             val jsonString = getJsonStringFromURL(url)
 
             if (jsonString != null) {
@@ -35,13 +40,13 @@ class RequesterImpl : IRequester {
 
                 val items = jsonArray.parseData()
 
-                ImageResponse.Success(items)
+                response.emit(ImageResponse.Success(items))
             } else {
-                ImageResponse.Failed
+                response.emit(ImageResponse.Failed)
             }
 
         } catch (e: Throwable) {
-            ImageResponse.Failed
+            response.emit(ImageResponse.Failed)
         }
     }
 
@@ -56,8 +61,7 @@ class RequesterImpl : IRequester {
             val id = item.optString("id") ?: break
 
             val imageItem = ImageItem(
-                id = id,
-                qualityUrls = QualityUrls(
+                id = id, qualityUrls = QualityUrls(
                     full = urls.optString("full") ?: "",
                     raw = urls.optString("raw") ?: "",
                     regular = urls.optString("regular") ?: "",

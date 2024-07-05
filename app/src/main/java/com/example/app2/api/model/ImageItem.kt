@@ -7,8 +7,10 @@ sealed class ImageResponse {
     data class Success(val items: List<ImageItem>) : ImageResponse()
 
     data object Failed: ImageResponse()
+
+    data object Loading: ImageResponse()
 }
 
 data class ImageItem(
-    var id: String, var qualityUrls: QualityUrls
+    var id: String, var qualityUrls: QualityUrls?
 )

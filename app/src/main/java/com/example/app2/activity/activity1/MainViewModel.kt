@@ -1,9 +1,8 @@
 package com.example.app2.activity.activity1
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.app2.BaseApplication
+import com.example.app2.BaseApplication.Companion.requester
 import com.example.app2.api.model.ImageItem
 import com.example.app2.api.model.ImageResponse
 import com.example.app2.database.MainRepository
@@ -11,6 +10,10 @@ import com.example.app2.database.model.ImageEntity
 import com.example.app2.model.ImageViewItem
 import com.example.app2.utils.CommonFunction.convertToImageEntity
 import com.example.app2.utils.CommonFunction.convertToImageResponse
+import com.example.app2.utils.Constants.LOAD_FAILED
+import com.example.app2.utils.Constants.LOAD_MORE
+import com.example.app2.utils.Constants.LOAD_MORE_FAILED
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,10 +27,10 @@ open class MainViewModel(
 
     private val imageEntities: Flow<List<ImageEntity>> = repository.getAll()
 
-    private val response: MutableStateFlow<List<ImageItem>> = MutableStateFlow(arrayListOf())
+    private val imageItems: MutableStateFlow<List<ImageItem>> = MutableStateFlow(arrayListOf())
 
     val imageViewItems: Flow<List<ImageViewItem>> =
-        response.combine(imageEntities) { imageItems, imageEntities ->
+        imageItems.combine(imageEntities) { imageItems, imageEntities ->
 
             val selected = imageEntities.map { it.imageId }
 
@@ -47,25 +50,67 @@ open class MainViewModel(
     private var isLoading = false
 
     init {
-        Log.d("TAG", "MainViewModel: ")
+        viewModelScope.launch {
+            requester.response.collect { imageResponse ->
+                imageResponse ?: return@collect
+
+                val currentList = imageItems.value.toMutableList()
+
+                when (imageResponse) {
+
+                    is ImageResponse.Success -> {
+                        delay(1000L)
+
+                        currentList.removeIf { it.id == LOAD_MORE || it.id == LOAD_FAILED || it.id == LOAD_MORE_FAILED }
+                        currentList.addAll(imageResponse.items)
+
+                        imageItems.emit(currentList.distinctBy { it.id })
+
+                        onFinish.invoke(true)
+                        isLoading = false
+                    }
+
+                    is ImageResponse.Failed -> {
+                        if (currentList.isEmpty()) {
+                            //load failed
+                            currentList += ImageItem(id = LOAD_FAILED, qualityUrls = null)
+                            imageItems.emit(currentList)
+                        } else {
+                            //load more failed
+                            currentList.removeIf { it.id == LOAD_MORE }
+
+                            if (currentList.last().id != LOAD_FAILED && currentList.last().id != LOAD_MORE_FAILED) {
+                                currentList += ImageItem(id = LOAD_MORE_FAILED, qualityUrls = null)
+                                imageItems.emit(currentList)
+                            }
+                        }
+
+                        onFinish.invoke(false)
+                        isLoading = false
+                    }
+
+                    is ImageResponse.Loading -> {
+                        isLoading = true
+                        if (currentList.isNotEmpty()) {
+                            if (currentList.last().id != LOAD_MORE && currentList.last().id != LOAD_FAILED && currentList.last().id != LOAD_MORE_FAILED) {
+                                currentList += ImageItem(id = LOAD_MORE, qualityUrls = null)
+                                imageItems.emit(currentList)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    fun fetchData() {
+    private var onFinish: (isSuccess: Boolean) -> Unit = {}
+
+    fun fetchData(onFinish: (isChanged: Boolean) -> Unit = {}) {
+        this.onFinish = onFinish
         viewModelScope.launch {
+            if (isLoading) return@launch
 
-            isLoading = true
-
-            val data = BaseApplication.requester.loadImages(page, 10)
-
-            if (data is ImageResponse.Success) {
-                val oldList = response.value
-
-                val newList = oldList + data.items
-
-                response.emit(newList.distinctBy { it.id })
-            }
-
-            isLoading = false
+            requester.loadImages(page, 10)
         }
     }
 

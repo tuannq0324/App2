@@ -10,15 +10,15 @@ data class ImageEntity(
     @ColumnInfo("imageId")
     var imageId: String,
     @ColumnInfo("urlFull")
-    val urlFull: String,
+    val urlFull: String?,
     @ColumnInfo("urlRaw")
-    val urlRaw: String,
+    val urlRaw: String?,
     @ColumnInfo("urlRegular")
-    val urlRegular: String,
+    val urlRegular: String?,
     @ColumnInfo("urlSmall")
-    val urlSmall: String,
+    val urlSmall: String?,
     @ColumnInfo("urlSmallS3")
-    val urlSmallS3: String,
+    val urlSmallS3: String?,
     @ColumnInfo("urlThumb")
-    val urlThumb: String,
+    val urlThumb: String?,
 )

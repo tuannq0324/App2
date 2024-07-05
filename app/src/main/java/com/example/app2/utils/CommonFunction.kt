@@ -20,12 +20,12 @@ object CommonFunction {
 
     fun ImageItem.convertToImageEntity(): ImageEntity = ImageEntity(
         imageId = id,
-        urlFull = qualityUrls.full,
-        urlRaw = qualityUrls.raw,
-        urlRegular = qualityUrls.regular,
-        urlSmall =  qualityUrls.small,
-        urlSmallS3 = qualityUrls.smallS3,
-        urlThumb =  qualityUrls.thumb,
+        urlFull = qualityUrls?.full,
+        urlRaw = qualityUrls?.raw,
+        urlRegular = qualityUrls?.regular,
+        urlSmall = qualityUrls?.small,
+        urlSmallS3 = qualityUrls?.smallS3,
+        urlThumb = qualityUrls?.thumb,
     )
 
 //    fun List<ImageItem>.convertToListImageEntity(): List<ImageEntity> {

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -15,7 +16,6 @@ import com.example.app2.database.AppDatabase
 import com.example.app2.database.MainRepository
 import com.example.app2.databinding.FragmentFirstBinding
 import com.example.app2.utils.extention.launchWhenStarted
-import com.example.app2.view.adapter.ImageAdapter
 import kotlinx.coroutines.launch
 
 class FirstFragment : Fragment() {
@@ -31,7 +31,15 @@ class FirstFragment : Fragment() {
     )
 
     private val mAdapter by lazy {
-        ImageAdapter(data = arrayListOf(), listener = firstViewModel::updateSelect)
+        ImageAdapter(data = arrayListOf(), listener = firstViewModel::updateSelect, tryAgain = {
+            firstViewModel.fetchData{
+                if (!it) Toast.makeText(
+                    context,
+                    getString(R.string.load_failed_try_again),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
     }
 
     override fun onCreateView(
@@ -46,7 +54,13 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        firstViewModel.fetchData()
+        firstViewModel.fetchData {
+            if (!it) Toast.makeText(
+                context,
+                getString(R.string.load_failed_try_again),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
         initData()
 
@@ -60,9 +74,6 @@ class FirstFragment : Fragment() {
             firstViewModel.imageViewItems.collect {
                 launchWhenStarted {
                     mAdapter.addAll(it)
-                    binding.rvImage.postDelayed({
-                        mAdapter.removeLoadMore()
-                    },1000L)
                 }
             }
         }
@@ -74,14 +85,8 @@ class FirstFragment : Fragment() {
             rvImage.addOnScrollListener(object : OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
-                    if (!recyclerView.canScrollVertically(1)) {
+                    if (!recyclerView.canScrollVertically(1) && dy > 0) {
                         firstViewModel.loadMore()
-
-                        mAdapter.addLoadMore()
-                        //timeout
-                        rvImage.postDelayed({
-                            mAdapter.removeLoadMore()
-                        }, 5000L)
                     }
                 }
             })
