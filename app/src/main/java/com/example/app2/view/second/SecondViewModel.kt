@@ -16,4 +16,4 @@ class SecondViewModelFactory(private val repository: MainRepository) : ViewModel
 }
 
 
-class SecondViewModel(private val repository: MainRepository): MainViewModel(repository)
+class SecondViewModel(repository: MainRepository): MainViewModel(repository)
