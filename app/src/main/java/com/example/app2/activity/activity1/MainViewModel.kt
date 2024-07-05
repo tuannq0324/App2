@@ -1,5 +1,6 @@
 package com.example.app2.activity.activity1
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app2.BaseApplication
@@ -17,7 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 //@HiltViewModel
-class MainViewModel(
+open class MainViewModel(
     private val repository: MainRepository
 ) : ViewModel() {
 
@@ -35,7 +36,7 @@ class MainViewModel(
             }
         }
 
-    val imageViewItemsSelected = repository.getAll().map { list ->
+    open val imageViewItemsSelected = repository.getAll().map { list ->
         list.map {
             ImageViewItem(item = it.convertToImageResponse(), isSelected = true)
         }
@@ -44,6 +45,10 @@ class MainViewModel(
     private var page = 1
 
     private var isLoading = false
+
+    init {
+        Log.d("TAG", "MainViewModel: ")
+    }
 
     fun fetchData() {
         viewModelScope.launch {

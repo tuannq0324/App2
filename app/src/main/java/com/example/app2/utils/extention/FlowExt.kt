@@ -1,4 +1,4 @@
-package com.example.app2.extention
+package com.example.app2.utils.extention
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope

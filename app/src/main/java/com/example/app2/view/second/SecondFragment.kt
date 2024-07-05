@@ -1,27 +1,32 @@
-package com.example.app2.view
+package com.example.app2.view.second
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.example.app2.activity.ViewModelFactory
-import com.example.app2.activity.activity1.MainViewModel
-import com.example.app2.adapter.ImageAdapter
 import com.example.app2.database.AppDatabase
 import com.example.app2.database.MainRepository
 import com.example.app2.databinding.FragmentSecondBinding
+import com.example.app2.view.adapter.ImageAdapter
+import com.example.app2.view.first.FirstViewModelFactory
 import kotlinx.coroutines.launch
 
 class SecondFragment : Fragment() {
-    private val binding: FragmentSecondBinding by lazy { FragmentSecondBinding.inflate(layoutInflater) }
+    private var _binding: FragmentSecondBinding? = null
 
-    private lateinit var activityViewModel: MainViewModel
+    private val binding: FragmentSecondBinding get() = _binding!!
+
+    private val secondViewModel by viewModels<SecondViewModel>(
+        factoryProducer = {
+            FirstViewModelFactory(repository = MainRepository(AppDatabase.getInstance(requireContext())))
+        }
+    )
 
     private val mAdapter by lazy {
-        ImageAdapter(data = arrayListOf(), listener = activityViewModel::updateSelect)
+        ImageAdapter(data = arrayListOf(), listener = secondViewModel::updateSelect)
     }
 
 
@@ -29,11 +34,7 @@ class SecondFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        activity?.let {
-            activityViewModel = ViewModelProvider(
-                it, ViewModelFactory(MainRepository(AppDatabase.getInstance(it)))
-            )[MainViewModel::class.java]
-        }
+
         return binding.root
     }
 
@@ -53,12 +54,17 @@ class SecondFragment : Fragment() {
 
     private fun initData() {
         lifecycleScope.launch {
-            activityViewModel.imageViewItemsSelected.collect {
+            secondViewModel.imageViewItemsSelected.collect {
                 if (it.isNotEmpty()) {
                     mAdapter.addAll(it)
                 } else mAdapter.addAll(arrayListOf())
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }
