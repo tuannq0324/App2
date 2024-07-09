@@ -60,9 +60,11 @@ class SecondFragmentAdapter(
         fun bind(imageResponse: ImageViewItem) {
             binding.apply {
 
-                ivTick.isSelected = imageResponse.isSelected == true
+                val item = (imageResponse as ImageViewItem.Image).item
 
-                Glide.with(root.context).load(imageResponse.item.qualityUrls?.thumb).into(ivItem)
+                ivTick.isSelected = item.isSelected == true
+
+                Glide.with(root.context).load(imageResponse.item.item.qualityUrls?.thumb).into(ivItem)
 
                 root.setOnClickListener {
                     ivTick.isSelected = !ivTick.isSelected

@@ -1,6 +1,7 @@
 package com.example.app2.view.first
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import com.example.app2.database.AppDatabase
 import com.example.app2.database.MainRepository
 import com.example.app2.databinding.FragmentFirstBinding
 import com.example.app2.utils.extention.launchWhenStarted
+import com.example.app2.view.ViewState
 import kotlinx.coroutines.launch
 
 class FirstFragment : Fragment() {
@@ -31,15 +33,11 @@ class FirstFragment : Fragment() {
     )
 
     private val mAdapter by lazy {
-        ImageAdapter(data = arrayListOf(), listener = firstViewModel::updateSelect, tryAgain = {
-            firstViewModel.fetchData{
-                if (!it) Toast.makeText(
-                    context,
-                    getString(R.string.load_failed_try_again),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        })
+        ImageAdapter(
+            data = arrayListOf(),
+            listener = firstViewModel::updateSelect,
+            tryAgain = firstViewModel::fetchData
+        )
     }
 
     override fun onCreateView(
@@ -54,14 +52,6 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        firstViewModel.fetchData {
-            if (!it) Toast.makeText(
-                context,
-                getString(R.string.load_failed_try_again),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
         initData()
 
         initView()
@@ -71,9 +61,32 @@ class FirstFragment : Fragment() {
 
     private fun initData() {
         lifecycleScope.launch {
-            firstViewModel.imageViewItems.collect {
-                launchWhenStarted {
-                    mAdapter.addAll(it)
+            launch {
+                firstViewModel.viewState.collect {
+                    Log.d("TAG", "initData: $it")
+                    when (it) {
+                        ViewState.Loading -> {
+                            binding.constraintLayoutError.visibility = View.GONE
+                            binding.linearLayoutLoading.visibility = View.VISIBLE
+                        }
+
+                        ViewState.Success -> {
+                            binding.linearLayoutLoading.visibility = View.GONE
+                            binding.constraintLayoutError.visibility = View.GONE
+                        }
+
+                        ViewState.Failed, ViewState.Empty -> {
+                            binding.constraintLayoutError.visibility = View.VISIBLE
+                            Toast.makeText(context, "Load failed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            launch {
+                firstViewModel.imageViewItems.collect {
+                    launchWhenStarted {
+                        mAdapter.addAll(it)
+                    }
                 }
             }
         }
@@ -85,11 +98,15 @@ class FirstFragment : Fragment() {
             rvImage.addOnScrollListener(object : OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
-                    if (!recyclerView.canScrollVertically(1) && dy > 0) {
+                    if (!recyclerView.canScrollVertically(1)) {
                         firstViewModel.loadMore()
                     }
                 }
             })
+
+            tvLoadFailed.setOnClickListener {
+                firstViewModel.fetchData()
+            }
         }
     }
 

@@ -7,8 +7,6 @@ sealed class ImageResponse {
     data class Success(val items: List<ImageItem>) : ImageResponse()
 
     data object Failed: ImageResponse()
-
-    data object Loading: ImageResponse()
 }
 
 data class ImageItem(

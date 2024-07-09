@@ -13,14 +13,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.bumptech.glide.Glide
 import com.example.app2.R
-import com.example.app2.databinding.ItemLoadFailedBinding
 import com.example.app2.databinding.ItemLoadMoreBinding
 import com.example.app2.databinding.ItemLoadMoreFailedBinding
 import com.example.app2.databinding.ItemRvImageBinding
 import com.example.app2.model.ImageViewItem
-import com.example.app2.utils.Constants.LOAD_FAILED
-import com.example.app2.utils.Constants.LOAD_MORE
-import com.example.app2.utils.Constants.LOAD_MORE_FAILED
 import com.example.app2.utils.Constants.VIEW_TYPE_ITEM
 import com.example.app2.utils.Constants.VIEW_TYPE_LOAD_FAILED
 import com.example.app2.utils.Constants.VIEW_TYPE_LOAD_MORE
@@ -34,14 +30,11 @@ class ImageAdapter(
 
     private lateinit var binding: ItemRvImageBinding
     private lateinit var bindingLoadMore: ItemLoadMoreBinding
-    private lateinit var bindingLoadFailed: ItemLoadFailedBinding
     private lateinit var bindingLoadMoreFailed: ItemLoadMoreFailedBinding
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
 
         binding = ItemRvImageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        bindingLoadFailed =
-            ItemLoadFailedBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         bindingLoadMore =
             ItemLoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         bindingLoadMoreFailed =
@@ -51,7 +44,6 @@ class ImageAdapter(
         return when (viewType) {
             VIEW_TYPE_ITEM -> ImageViewHolder(binding, listener, tryAgain)
             VIEW_TYPE_LOAD_MORE -> ImageViewHolder(bindingLoadMore, listener, tryAgain)
-            VIEW_TYPE_LOAD_FAILED -> ImageViewHolder(bindingLoadFailed, listener, tryAgain)
             VIEW_TYPE_LOAD_MORE_FAILED -> ImageViewHolder(bindingLoadMoreFailed, listener, tryAgain)
             else -> ImageViewHolder(binding, listener, tryAgain)
         }
@@ -62,10 +54,10 @@ class ImageAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (data[position]?.item?.id) {
-            LOAD_MORE -> VIEW_TYPE_LOAD_MORE
-            LOAD_FAILED -> VIEW_TYPE_LOAD_FAILED
-            LOAD_MORE_FAILED -> VIEW_TYPE_LOAD_MORE_FAILED
+        return when (data[position]) {
+            is ImageViewItem.Image -> VIEW_TYPE_ITEM
+            ImageViewItem.LoadMore -> VIEW_TYPE_LOAD_MORE
+            ImageViewItem.LoadMoreFailed -> VIEW_TYPE_LOAD_MORE_FAILED
             else -> VIEW_TYPE_ITEM
         }
     }
@@ -109,14 +101,14 @@ class ImageAdapter(
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             when (binding) {
-                is ItemLoadFailedBinding -> {
-                    (binding as ItemLoadFailedBinding).apply {
-                        tvTryAgain.text = spannableString
-                        tvTryAgain.setOnClickListener {
-                            tryAgain.invoke()
-                        }
-                    }
-                }
+//                is ItemLoadFailedBinding -> {
+//                    (binding as ItemLoadFailedBinding).apply {
+//                        tvTryAgain.text = spannableString
+//                        tvTryAgain.setOnClickListener {
+//                            tryAgain.invoke()
+//                        }
+//                    }
+//                }
 
                 is ItemLoadMoreFailedBinding -> {
                     (binding as ItemLoadMoreFailedBinding).apply {
@@ -134,9 +126,11 @@ class ImageAdapter(
                 is ItemRvImageBinding -> {
                     (binding as ItemRvImageBinding).apply {
 
-                        ivTick.isSelected = imageResponse.isSelected == true
+                        val image = imageResponse as ImageViewItem.Image
 
-                        Glide.with(root.context).load(imageResponse.item.qualityUrls?.regular)
+                        ivTick.isSelected = image.item.isSelected == true
+
+                        Glide.with(root.context).load(imageResponse.item.item.qualityUrls?.regular)
                             .into(ivItem)
 
                         root.setOnClickListener {

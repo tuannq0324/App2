@@ -2,8 +2,8 @@ package com.example.app2.view.first
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.app2.activity.activity1.MainViewModel
 import com.example.app2.database.MainRepository
+import com.example.app2.view.BaseViewModel
 
 class FirstViewModelFactory(private val repository: MainRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -16,4 +16,4 @@ class FirstViewModelFactory(private val repository: MainRepository) : ViewModelP
 }
 
 
-class FirstViewModel(repository: MainRepository): MainViewModel(repository)
+class FirstViewModel(repository: MainRepository): BaseViewModel(repository)
