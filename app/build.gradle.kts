@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.app2"
-        minSdk = 24
+        minSdk = 21
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -65,4 +65,6 @@ dependencies {
 
     implementation (libs.androidx.navigation.fragment.ktx)
     implementation (libs.androidx.navigation.ui.ktx)
+
+    implementation(libs.coil)
 }

@@ -3,7 +3,6 @@ package com.example.app2.api
 import android.util.Log
 import com.example.app2.api.model.ImageItem
 import com.example.app2.api.model.ImageResponse
-import com.example.app2.model.QualityUrls
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -67,13 +66,14 @@ private fun JSONArray.parseData(): List<ImageItem> {
         val id = item.optString("id") ?: break
 
         val imageItem = ImageItem(
-            id = id, qualityUrls = QualityUrls(
-                full = urls.optString("full") ?: "",
-                raw = urls.optString("raw") ?: "",
-                regular = urls.optString("regular") ?: "",
-                small = urls.optString("small") ?: "",
-                smallS3 = urls.optString("small_s3") ?: "",
-                thumb = urls.optString("thumb") ?: "",
+            id = id,
+            urls = listOf(
+                urls.optString("full") ?: "",
+                urls.optString("raw") ?: "",
+                urls.optString("regular") ?: "",
+                urls.optString("small") ?: "",
+                urls.optString("small_s3") ?: "",
+                urls.optString("thumb") ?: "",
             )
         )
 

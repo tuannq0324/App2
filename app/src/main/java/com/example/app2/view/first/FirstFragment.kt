@@ -1,7 +1,6 @@
 package com.example.app2.view.first
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,7 +35,7 @@ class FirstFragment : Fragment() {
         ImageAdapter(
             data = arrayListOf(),
             listener = firstViewModel::updateSelect,
-            tryAgain = firstViewModel::fetchData
+            tryAgain = firstViewModel::loadMore
         )
     }
 
@@ -63,7 +62,6 @@ class FirstFragment : Fragment() {
         lifecycleScope.launch {
             launch {
                 firstViewModel.viewState.collect {
-                    Log.d("TAG", "initData: $it")
                     when (it) {
                         ViewState.Loading -> {
                             binding.constraintLayoutError.visibility = View.GONE
@@ -95,6 +93,7 @@ class FirstFragment : Fragment() {
     private fun initView() {
         binding.apply {
             rvImage.adapter = mAdapter
+            rvImage.setItemViewCacheSize(100)
             rvImage.addOnScrollListener(object : OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
