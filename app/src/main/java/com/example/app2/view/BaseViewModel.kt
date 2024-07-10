@@ -1,6 +1,5 @@
 package com.example.app2.view
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app2.BaseApplication.Companion.requester
@@ -81,8 +80,6 @@ open class BaseViewModel(
         viewModelScope.launch {
             updateViewState(ViewState.Loading)
 
-            Log.d("TAG", "fetchData: Data")
-
             val currentList = imageItems.value.toMutableList()
 
             when (val imageResponse = requester.loadImages(page, 10)) {
@@ -161,7 +158,6 @@ open class BaseViewModel(
         imageItems.value = items.distinctBy {
             it.id
         }
-        Log.d("TAG", "updateImageItems: ${items.size}")
     }
 
     private fun updateViewState(state: ViewState) {

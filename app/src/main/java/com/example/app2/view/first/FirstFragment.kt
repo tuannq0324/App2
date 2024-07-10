@@ -93,7 +93,6 @@ class FirstFragment : Fragment() {
     private fun initView() {
         binding.apply {
             rvImage.adapter = mAdapter
-            rvImage.setItemViewCacheSize(100)
             rvImage.addOnScrollListener(object : OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)

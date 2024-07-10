@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -40,8 +39,6 @@ class ImageAdapter(
             ItemLoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         bindingLoadMoreFailed =
             ItemLoadMoreFailedBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-
-        Log.d("TAG", "onCreateViewHolder: $viewType")
 
         return when (viewType) {
             VIEW_TYPE_LOAD_MORE -> ImageViewHolder(bindingLoadMore, listener, tryAgain)
@@ -91,14 +88,6 @@ class ImageAdapter(
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             when (binding) {
-//                is ItemLoadFailedBinding -> {
-//                    (binding as ItemLoadFailedBinding).apply {
-//                        tvTryAgain.text = spannableString
-//                        tvTryAgain.setOnClickListener {
-//                            tryAgain.invoke()
-//                        }
-//                    }
-//                }
 
                 is ItemLoadMoreFailedBinding -> {
                     (binding as ItemLoadMoreFailedBinding).apply {
