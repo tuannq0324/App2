@@ -5,10 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import coil.load
-import coil.size.Precision
-import coil.size.Scale
-import com.example.app2.R
 import com.example.app2.databinding.ItemRvImageBinding
 import com.example.app2.model.ImageViewItem
 import com.example.app2.utils.Constants.VIEW_TYPE_ITEM
@@ -18,14 +14,14 @@ import com.example.app2.utils.Constants.VIEW_TYPE_LOAD_MORE_FAILED
 class SecondFragmentAdapter(
     private val data: ArrayList<ImageViewItem?>,
     private val listener: (ImageViewItem) -> Unit,
-) : RecyclerView.Adapter<SecondFragmentAdapter.ImageViewHolder>() {
+) : RecyclerView.Adapter<SecondViewHolder>() {
 
     private lateinit var binding: ItemRvImageBinding
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SecondViewHolder {
 
         binding = ItemRvImageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ImageViewHolder(binding, listener)
+        return SecondViewHolder(binding, listener)
     }
 
     override fun getItemCount(): Int {
@@ -47,40 +43,11 @@ class SecondFragmentAdapter(
         notifyDataSetChanged()
     }
 
-    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SecondViewHolder, position: Int) {
 
         val layoutParams = holder.itemView.layoutParams as StaggeredGridLayoutManager.LayoutParams
         layoutParams.isFullSpan =
             getItemViewType(position) == VIEW_TYPE_LOAD_MORE || getItemViewType(position) == VIEW_TYPE_LOAD_MORE_FAILED
         data[position]?.let { holder.bind(it) }
-    }
-
-    class ImageViewHolder(
-        private var binding: ItemRvImageBinding,
-        private val listener: (ImageViewItem) -> Unit,
-    ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(imageResponse: ImageViewItem) {
-            binding.apply {
-
-                val item = (imageResponse as ImageViewItem.Image).item
-
-                ivTick.isSelected = item.isSelected == true
-
-                ivItem.load(imageResponse.item.item.urls.last()) {
-                    placeholder(R.drawable.ic_image_default)
-                    error(R.drawable.ic_load_failed)
-                    crossfade(true)
-                    memoryCacheKey(imageResponse.item.item.id)
-                    precision(Precision.EXACT)
-                    scale(Scale.FILL)
-                }
-
-                root.setOnClickListener {
-                    ivTick.isSelected = !ivTick.isSelected
-                    listener(imageResponse)
-                }
-            }
-
-        }
     }
 }
